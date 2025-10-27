@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubscriptionsApi.Models
@@ -34,9 +34,17 @@ namespace SubscriptionsApi.Models
         [Column("enddate")]
         public DateTime EndDate { get; set; }
 
+        // 🔗 Relaciones explícitas (ForeignKey)
+        [ForeignKey("IdSubscription")]
         public Subscription Subscription { get; set; }
+
+        [ForeignKey("IdSubscriptionStatus")]
         public SubscriptionStatus SubscriptionStatus { get; set; }
+
+        [ForeignKey("IdPaymentMethod")]
         public PaymentMethod PaymentMethod { get; set; }
+
+        [ForeignKey("IdCurrency")]
         public Currency Currency { get; set; }
     }
 }

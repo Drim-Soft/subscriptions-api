@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,19 +25,19 @@ namespace SubscriptionsApi.Models
         [Column("idorganization")]
         public int IdOrganization { get; set; }
 
-        [Column("total", TypeName = "numeric")]
+        [Column("total")]
         public decimal Total { get; set; }
 
-        [Column("startdate", TypeName = "date")]
+        [Column("startdate")]
         public DateTime StartDate { get; set; }
 
-        [Column("enddate", TypeName = "date")]
+        [Column("enddate")]
         public DateTime EndDate { get; set; }
 
-        // Relaciones
-        public Subscription? Subscription { get; set; }
-        public SubscriptionStatus? SubscriptionStatus { get; set; }
-        public PaymentMethod? PaymentMethod { get; set; }
-        public Currency? Currency { get; set; }
+        public Subscription Subscription { get; set; }
+        public SubscriptionStatus SubscriptionStatus { get; set; }
+        public PaymentMethod PaymentMethod { get; set; }
+        public Currency Currency { get; set; }
     }
 }
+

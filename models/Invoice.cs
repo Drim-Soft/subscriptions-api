@@ -1,5 +1,4 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubscriptionsApi.Models
@@ -26,19 +25,27 @@ namespace SubscriptionsApi.Models
         [Column("idorganization")]
         public int IdOrganization { get; set; }
 
-        [Column("total", TypeName = "numeric")]
+        [Column("total")]
         public decimal Total { get; set; }
 
-        [Column("startdate", TypeName = "date")]
+        [Column("startdate")]
         public DateTime StartDate { get; set; }
 
-        [Column("enddate", TypeName = "date")]
+        [Column("enddate")]
         public DateTime EndDate { get; set; }
 
-        // Relaciones
-        public Subscription? Subscription { get; set; }
-        public SubscriptionStatus? SubscriptionStatus { get; set; }
-        public PaymentMethod? PaymentMethod { get; set; }
-        public Currency? Currency { get; set; }
+        // 🔗 Relaciones explícitas (ForeignKey)
+        [ForeignKey("IdSubscription")]
+        public Subscription Subscription { get; set; }
+
+        [ForeignKey("IdSubscriptionStatus")]
+        public SubscriptionStatus SubscriptionStatus { get; set; }
+
+        [ForeignKey("IdPaymentMethod")]
+        public PaymentMethod PaymentMethod { get; set; }
+
+        [ForeignKey("IdCurrency")]
+        public Currency Currency { get; set; }
     }
 }
+

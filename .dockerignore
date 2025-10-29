@@ -1,6 +1,5 @@
 bin/
 obj/
-.env
 .git
 .gitignore
 .vscode

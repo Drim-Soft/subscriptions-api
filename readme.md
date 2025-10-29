@@ -22,3 +22,7 @@ dotnet restore
 
 2. to run :
 dotnet run
+
+docker: 
+docker build -t subscriptions-api .
+docker run -it --rm -p 8080:8080 subscriptions-api

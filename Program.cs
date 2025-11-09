@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load();
 
 // Leer la cadena desde el .env
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+var connectionString = Environment.GetEnvironmentVariable("SERVER_SERVLET_CONTEXT_PATH");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString)
@@ -25,6 +25,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
 

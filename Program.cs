@@ -1,21 +1,22 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionsApi.Data;
-
+using SubscriptionsApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cargar variables del archivo .env
+
 Env.Load();
 
-// Leer la cadena desde el .env
-var connectionString = Environment.GetEnvironmentVariable("SERVER_SERVLET_CONTEXT_PATH");
+
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
 
-builder.Services.AddControllers();
+
 builder.Services.AddControllers()
     .AddJsonOptions(x =>
     {
@@ -23,15 +24,34 @@ builder.Services.AddControllers()
         x.JsonSerializerOptions.WriteIndented = true;
     });
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<EmailService>();
 
+
+
+
+
 var app = builder.Build();
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
+app.UseRouting();
+app.UseCors("AllowAll");
+app.UseAuthorization();
 app.MapControllers();
+
 
 app.Run();

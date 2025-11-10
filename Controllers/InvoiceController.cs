@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionsApi.Data;
 using SubscriptionsApi.Models;
+using SubscriptionsApi.Services; 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -58,24 +59,34 @@ namespace SubscriptionsApi.Controllers
         // POST: api/invoice
         // ===========================================
         [HttpPost]
-        public async Task<ActionResult<Invoice>> CreateInvoice([FromBody] Invoice invoice)
+        public async Task<ActionResult> CreateInvoice([FromBody] InvoiceRequestDTO dto)
         {
-            if (invoice == null)
-                return BadRequest(new { message = "Datos de factura inv�lidos" });
+            if (!ModelState.IsValid)
+                return BadRequest("Datos inválidos");
 
-            try
+            var invoice = new Invoice
             {
-                _context.Invoices.Add(invoice);
-                await _context.SaveChangesAsync();
+                IdSubscription = dto.SubscriptionId,
+                IdCurrency = dto.CurrencyId,
+                IdPaymentMethod = dto.PaymentMethodId,
+                Total = dto.Total
+            };
 
-                return CreatedAtAction(nameof(GetInvoiceById),
-                    new { id = invoice.IdInvoice },
-                    invoice);
-            }
-            catch (Exception ex)
+            _context.Invoices.Add(invoice);
+            await _context.SaveChangesAsync();
+
+            // enviar email usando DTO
+            await EmailService.SendContactEmail(new
             {
-                return StatusCode(500, new { message = "Error al crear la factura", error = ex.Message });
-            }
+                FullName = dto.FullName,
+                Email = dto.Email,
+                Company = dto.Company,
+                AccessCount = dto.AccessCount,
+                Phone = dto.Phone
+            });
+
+            return Ok(new { message = "Factura creada", id = invoice.IdInvoice });
         }
+
     }
 }

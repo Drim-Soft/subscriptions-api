@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SubscriptionsApi.Data;
+using SubscriptionsApi.Services;
 using SubscriptionsApi.Models;
 using System.Threading.Tasks;
 
@@ -10,12 +9,10 @@ namespace SubscriptionsApi.Controllers
     [ApiController]
     public class EnterpriseLeadController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly EmailService _email;
 
-        public EnterpriseLeadController(ApplicationDbContext context, EmailService email)
+        public EnterpriseLeadController(EmailService email)
         {
-            _context = context;
             _email = email;
         }
 
@@ -24,13 +21,10 @@ namespace SubscriptionsApi.Controllers
         {
             if (!ModelState.IsValid) return BadRequest("Datos inválidos.");
 
-            _context.EnterpriseLeads.Add(lead);
-            await _context.SaveChangesAsync();
-
-            // ✅ mandar email al cliente
+            // SOLO enviamos correo
             await _email.SendLeadConfirmation(lead);
 
-            return Ok(new { message = "Lead registrado", id = lead.Id });
+            return Ok(new { message = "Solicitud leída correctamente, correo enviado" });
         }
     }
 }

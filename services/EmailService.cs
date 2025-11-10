@@ -1,47 +1,53 @@
-using SubscriptionsApi.Models;
+ï»¿using System;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
+using DotNetEnv;
+
 
 namespace SubscriptionsApi.Services
 {
     public class EmailService
     {
-        private readonly IConfiguration _config;
-
-        public EmailService(IConfiguration config)
+        public async Task SendContactEmail(dynamic data)
         {
-            _config = config;
-        }
-
-        public async Task SendLeadConfirmation(EnterpriseLead lead)
-        {
-            string body = $@"
-            <div style='font-family:Arial;padding:20px;background:#fafafa'>
-                <h2 style='color:#3A6EA5'>¡Gracias por tu solicitud, {lead.FullName}!</h2>
-                <p>Hemos recibido tu interés en adquirir {lead.AccessCount} accesos para tu empresa: <b>{lead.Company}</b>.</p>
-                <p>Uno de nuestros asesores se pondrá en contacto contigo al teléfono <b>{lead.Phone}</b></p>
-                <br>
-                <small>Equipo Planifika | DrimSoft</small>
-            </div>";
-
-            var message = new MailMessage();
-            message.To.Add(lead.Email);
-            message.From = new MailAddress(_config["EMAIL_FROM"]);
-            message.Subject = "Confirmación de solicitud empresarial";
-            message.IsBodyHtml = true;
-            message.Body = body;
-
-            var smtp = new SmtpClient(_config["SMTP_HOST"])
+            var smtpClient = new SmtpClient(Environment.GetEnvironmentVariable("SMTP_HOST"))
             {
-                Port = int.Parse(_config["SMTP_PORT"]),
+                Port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")),
                 Credentials = new NetworkCredential(
-                    _config["SMTP_USER"],
-                    _config["SMTP_PASS"]),
-                EnableSsl = true
+                    Environment.GetEnvironmentVariable("SMTP_USER"),
+                    Environment.GetEnvironmentVariable("SMTP_PASS")
+                ),
+                EnableSsl = true,
             };
 
-            await smtp.SendMailAsync(message);
+            string body = $@"
+                <h3>Hola {data.FullName} </h3>
+                <p>Gracias por tu interÃ©s en Planifika para <strong>{data.Company}</strong>.</p>
+
+                <p>
+                âœ… TelÃ©fono: {data.Phone}<br>
+                âœ… Accesos solicitados: {data.AccessCount}
+                </p>
+
+                <p>Nos pondremos en contacto muy pronto.</p>
+                <br>
+                <em>Equipo Planifika</em>
+            ";
+
+            var mailMessage = new MailMessage(
+                Environment.GetEnvironmentVariable("MAIL_FROM"),
+                data.Email,
+                "Solicitud recibida - Planifika",
+                body
+            );
+
+            mailMessage.IsBodyHtml = true;
+            mailMessage.BodyEncoding = Encoding.UTF8;
+            mailMessage.SubjectEncoding = Encoding.UTF8;
+
+            await smtpClient.SendMailAsync(mailMessage);
         }
     }
 }

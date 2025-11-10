@@ -1,7 +1,7 @@
 ﻿# 🧾 Subscriptions API (.NET 8 + PostgreSQL Supabase)
 
 
----
+
 
 
 ## ⚙️ Environment Configuration

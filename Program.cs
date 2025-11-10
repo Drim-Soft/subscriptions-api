@@ -1,6 +1,7 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionsApi.Data;
+using Prometheus;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Configurar métricas de Prometheus
+app.UseMetricServer(); // Expone el endpoint /metrics
+app.UseHttpMetrics(); // Métricas HTTP automáticas
 
 app.UseSwagger();
 app.UseSwaggerUI();

@@ -1,53 +1,54 @@
-﻿using System;
-using System.Net;
-using System.Net.Mail;
+﻿using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using DotNetEnv;
-
 
 namespace SubscriptionsApi.Services
 {
     public class EmailService
     {
-        public async Task SendContactEmail(dynamic data)
+        private readonly HttpClient _http;
+
+        public EmailService(HttpClient http)
         {
-            var smtpClient = new SmtpClient(Environment.GetEnvironmentVariable("SMTP_HOST"))
+            _http = http;
+        }
+
+        public async Task SendLeadConfirmation(string toEmail, string name, string company)
+        {
+            var payload = new
             {
-                Port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")),
-                Credentials = new NetworkCredential(
-                    Environment.GetEnvironmentVariable("SMTP_USER"),
-                    Environment.GetEnvironmentVariable("SMTP_PASS")
-                ),
-                EnableSsl = true,
+                from = "onboarding@resend.dev",
+                to = new[] { toEmail },
+                subject = "Solicitud recibida - Planifika",
+                html = $"<p>Hola <strong>{name}</strong>,</p><p>Recibimos tu solicitud para <strong>{company}</strong>. ¡Gracias!</p>"
             };
 
-            string body = $@"
-                <h3>Hola {data.FullName} </h3>
-                <p>Gracias por tu interés en Planifika para <strong>{data.Company}</strong>.</p>
+            var json = JsonSerializer.Serialize(payload);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                <p>
-                ✅ Teléfono: {data.Phone}<br>
-                ✅ Accesos solicitados: {data.AccessCount}
-                </p>
+            var resp = await _http.PostAsync("/emails", content);
 
-                <p>Nos pondremos en contacto muy pronto.</p>
-                <br>
-                <em>Equipo Planifika</em>
-            ";
+            // lanza excepción si no fue 2xx
+            resp.EnsureSuccessStatusCode();
+        }
 
-            var mailMessage = new MailMessage(
-                Environment.GetEnvironmentVariable("MAIL_FROM"),
-                data.Email,
-                "Solicitud recibida - Planifika",
-                body
-            );
+        // método genérico para enviar facturas u otros templates
+        public async Task SendHtmlEmail(string toEmail, string subject, string htmlBody)
+        {
+            var payload = new
+            {
+                from = "onboarding@resend.dev",
+                to = new[] { toEmail },
+                subject = subject,
+                html = htmlBody
+            };
 
-            mailMessage.IsBodyHtml = true;
-            mailMessage.BodyEncoding = Encoding.UTF8;
-            mailMessage.SubjectEncoding = Encoding.UTF8;
+            var json = JsonSerializer.Serialize(payload);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            await smtpClient.SendMailAsync(mailMessage);
+            var resp = await _http.PostAsync("/emails", content);
+            resp.EnsureSuccessStatusCode();
         }
     }
 }

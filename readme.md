@@ -22,3 +22,7 @@ dotnet restore
 
 2. to run :
 dotnet run
+
+3. docker:
+docker build -t subscriptions-api .
+docker run -p 5096:8080 --env-file .env subscriptions-api

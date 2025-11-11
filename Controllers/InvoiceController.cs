@@ -2,10 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using SubscriptionsApi.Data;
 using SubscriptionsApi.Models;
-using SubscriptionsApi.Services; 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+
 
 namespace SubscriptionsApi.Controllers
 {
@@ -20,9 +20,7 @@ namespace SubscriptionsApi.Controllers
             _context = context;
         }
 
-        // ===========================================
         // GET: api/invoice
-        // ===========================================
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices()
         {
@@ -36,9 +34,7 @@ namespace SubscriptionsApi.Controllers
             return Ok(invoices);
         }
 
-        // ===========================================
         // GET: api/invoice/{id}
-        // ===========================================
         [HttpGet("{id}")]
         public async Task<ActionResult<Invoice>> GetInvoiceById(int id)
         {
@@ -55,38 +51,46 @@ namespace SubscriptionsApi.Controllers
             return Ok(invoice);
         }
 
-        // ===========================================
         // POST: api/invoice
-        // ===========================================
+        // Recibe un DTO con los datos necesarios para crear la factura.
         [HttpPost]
-        public async Task<ActionResult> CreateInvoice([FromBody] InvoiceRequestDTO dto)
+        public async Task<ActionResult<Invoice>> CreateInvoice([FromBody] InvoiceRequestDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Datos inválidos");
+            if (dto == null)
+                return BadRequest(new { message = "Datos de factura inválidos" });
 
+            // Mapea el DTO al modelo de la entidad Invoice
             var invoice = new Invoice
             {
-                IdSubscription = dto.SubscriptionId,
-                IdCurrency = dto.CurrencyId,
-                IdPaymentMethod = dto.PaymentMethodId,
-                Total = dto.Total
+                // Ajusta estos campos según tu modelo Invoice y el DTO
+                // Ejemplo (asegúrate que los nombres existen en InvoiceRequestDTO):
+                IdSubscription = dto.IdSubscription,
+                IdSubscriptionStatus = dto.IdSubscriptionStatus,
+                IdPaymentMethod = dto.IdPaymentMethod,
+                IdCurrency = dto.IdCurrency,
+                IdOrganization = dto.IdOrganization,
+                Total = dto.TotalAmount,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate
             };
 
-            _context.Invoices.Add(invoice);
-            await _context.SaveChangesAsync();
-
-            // enviar email usando DTO
-            await EmailService.SendContactEmail(new
+            try
             {
-                FullName = dto.FullName,
-                Email = dto.Email,
-                Company = dto.Company,
-                AccessCount = dto.AccessCount,
-                Phone = dto.Phone
-            });
+                _context.Invoices.Add(invoice);
+                await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Factura creada", id = invoice.IdInvoice });
+                return CreatedAtAction(nameof(GetInvoiceById),
+                    new { id = invoice.IdInvoice },
+                    invoice);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return StatusCode(500, new { message = "Error al guardar la factura en la base de datos", error = dbEx.Message });
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al crear la factura", error = ex.Message });
+            }
         }
-
     }
 }

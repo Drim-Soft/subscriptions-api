@@ -15,7 +15,8 @@ namespace SubscriptionsApi.Data
         public DbSet<SubscriptionStatus> SubscriptionStatuses { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Currency> Currencies { get; set; }
-        
+        public DbSet<EnterpriseLead> EnterpriseLeads { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

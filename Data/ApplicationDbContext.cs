@@ -27,7 +27,8 @@ namespace SubscriptionsApi.Data
 
                 foreach (var property in entity.GetProperties())
                 {
-                    property.SetColumnName(property.GetColumnBaseName().ToLower());
+                    var columnName = property.GetColumnName() ?? property.Name;
+                    property.SetColumnName(columnName.ToLower());
                 }
             }
         }

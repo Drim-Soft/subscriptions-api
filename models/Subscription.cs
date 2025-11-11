@@ -11,9 +11,6 @@ namespace SubscriptionsApi.Models
         public int IdSubscription { get; set; }
 
         [Column("name")]
-        public string Name { get; set; }
-
-
-        public ICollection<Invoice> Invoices { get; set; }
+        public required string Name { get; set; }
     }
 }

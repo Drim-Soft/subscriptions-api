@@ -36,16 +36,16 @@ namespace SubscriptionsApi.Models
 
         // 🔗 Relaciones explícitas (ForeignKey)
         [ForeignKey("IdSubscription")]
-        public Subscription Subscription { get; set; }
+        public Subscription? Subscription { get; set; }
 
         [ForeignKey("IdSubscriptionStatus")]
-        public SubscriptionStatus SubscriptionStatus { get; set; }
+        public SubscriptionStatus? SubscriptionStatus { get; set; }
 
         [ForeignKey("IdPaymentMethod")]
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
 
         [ForeignKey("IdCurrency")]
-        public Currency Currency { get; set; }
+        public Currency? Currency { get; set; }
     }
 }
 

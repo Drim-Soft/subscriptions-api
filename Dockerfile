@@ -1,20 +1,16 @@
-# Etapa 1: Compilar la aplicación
+# Etapa de compilaciÃ³n
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
-
-# Copiar los archivos del proyecto y restaurar dependencias
-COPY *.csproj .
+WORKDIR /src
+COPY *.csproj ./
 RUN dotnet restore
+COPY . ./
+RUN dotnet publish -c Release -o /app/publish
 
-# Copiar todo el código y compilar
-COPY . .
-RUN dotnet publish -c Release -o out
-
-# Etapa 2: Imagen final para ejecución
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+# Etapa de runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/out .
-
-EXPOSE 5096
+COPY --from=build /app/publish .
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 ENTRYPOINT ["dotnet", "SubscriptionsApi.dll"]
 

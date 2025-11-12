@@ -25,4 +25,4 @@ dotnet run
 
 3. docker:
 docker build -t subscriptions-api .
-docker run -p 5096:8080 --env-file .env subscriptions-api
+docker run --rm --env-file .env -p 5096:8080 subscriptions-api

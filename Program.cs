@@ -60,6 +60,17 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configurar CORS para permitir cualquier origen
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configurar métricas de Prometheus
@@ -68,6 +79,9 @@ app.UseHttpMetrics(); // Métricas HTTP automáticas
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Habilitar CORS
+app.UseCors();
 
 app.MapControllers();
 

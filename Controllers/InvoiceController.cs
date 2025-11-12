@@ -4,6 +4,7 @@ using SubscriptionsApi.Data;
 using SubscriptionsApi.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SubscriptionsApi.Controllers
@@ -52,6 +53,23 @@ namespace SubscriptionsApi.Controllers
                 return NotFound(new { message = "Factura no encontrada" });
 
             return Ok(invoice);
+        }
+
+        // ===========================================
+        // GET: api/invoice/organization/{idOrganization}
+        // ===========================================
+        [HttpGet("organization/{idOrganization}")]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoicesByOrganization(int idOrganization)
+        {
+            var invoices = await _context.Invoices
+                .Include(i => i.Currency)
+                .Include(i => i.Subscription)
+                .Include(i => i.SubscriptionStatus)
+                .Include(i => i.PaymentMethod)
+                .Where(i => i.IdOrganization == idOrganization)
+                .ToListAsync();
+
+            return Ok(invoices);
         }
 
         // ===========================================
